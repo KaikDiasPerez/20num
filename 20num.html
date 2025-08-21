@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<h3>Site de Kaik Dias Perez 1ºDS</h3>
+<!-- Mensagem Importante!!! : O código que eu coloquei aqui foi tirado do ChatGPT,  
+ então li o código e escrevi o que cada parte faz porque eu não conseguia fazer 
+ por não saber muito bem do assunto espero que entenda. - Kaik -->
+
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Análise de Números</title>
+
+  <style>
+
+    /* Esse é a personalização do site */
+
+    body { font-family: Arial; padding: 20px; }
+    input { width: 60px; margin: 3px; text-align: center; }
+    button { margin: 5px; padding: 6px 12px; }
+    .erro { color:red; font-weight:bold; }
+    .pill { display:inline-block; margin:3px; padding:4px 8px; background:#ddd; border-radius:12px; }
+    pre { background:#f3f3f3; padding:10px; border-radius:6px; }
+  </style>
+</head>
+<body>
+  <h2>Análise dos 20 Números</h2>
+  <form id="formNumeros">
+    <div id="inputs"></div>
+    <button type="submit">Calcular</button>
+    <button type="button" id="btnLimpar">Limpar</button>
+  </form>
+  <div id="resultado"></div>
+
+  <script>
+    const grid = document.getElementById('inputs');
+
+    // Criar 20 inputs (caixinhas para colocar os números)
+
+    for (let i = 1; i <= 20; i++) {
+      const inp = document.createElement('input');
+      inp.type = 'number'; inp.min = 0; inp.max = 100; inp.placeholder = i;
+      grid.appendChild(inp);
+    }
+
+    const form = document.getElementById('formNumeros');
+    const resultado = document.getElementById('resultado');
+
+    // Botão de limpar  
+
+    document.getElementById('btnLimpar').onclick = () => {
+      grid.querySelectorAll('input').forEach(i => i.value = '');
+      resultado.innerHTML = '';
+    };
+
+    form.onsubmit = (e) => {
+      e.preventDefault();
+      resultado.innerHTML = '';
+
+      const valores = [];
+      let preenchidos = true;
+
+      // Coletar valores dos inputs e validar
+
+      grid.querySelectorAll('input').forEach(inp => {
+        if (inp.value === '') preenchidos = false; // se algum input vazio
+        else {
+          let n = Number(inp.value);
+          if (n >= 0 && n <= 100) valores.push(n); // só aceitar 0-100
+        }
+      });
+
+      if (!preenchidos) {
+        resultado.innerHTML = "<p class='erro'>Erro: coloque os 20 números.</p>";
+        return;
+      }
+
+      // Sequência original
+      
+      const original = [...valores];
+
+      // Ordenações
+
+      const ordenadosDecrescente = [...valores].sort((a,b)=>b-a); // ordem decrescente
+      const ordenadosCrescente = [...valores].sort((a,b)=>a-b); // ordem crescente
+
+      // Soma total
+
+      const somaTotal = valores.reduce((a,b)=>a+b,0);
+
+      // Maior e menor
+
+      const maior = Math.max(...valores);
+      const menor = Math.min(...valores);
+
+      // Contagem de repetições
+
+      const contagem = new Map();
+      valores.forEach(n => contagem.set(n, (contagem.get(n) || 0) + 1));
+
+      // Filtrar os números que se repetem
+
+      const repetidos = Array.from(contagem.entries())
+        .filter(([num,qtd]) => qtd > 1)
+        .sort((a,b)=>b[0]-a[0]); // decrescente
+
+      // Soma dos repetidos (todas as ocorrências)
+
+      const somaRepetidos = repetidos.reduce((acc,[num,qtd]) => acc + (num*qtd),0);
+
+      // Porcentagem dos repetidos em relação à soma total
+
+      const percRepetidos = ((somaRepetidos / somaTotal) * 100).toFixed(2);
+
+      // Gráfico de barras (quantidade de repetições)
+
+      let graficoBarras = "";
+      contagem.forEach((qtd,num) => {
+        graficoBarras += `Número ${num}: ${"*".repeat(qtd)} (${qtd} vezes)\n`;
+      });
+
+      const repetidosChars = Math.round((percRepetidos/100)*20);
+      const outrosChars = 20 - repetidosChars;
+      const graficoPizza = 
+        `Repetidos: [${"#".repeat(repetidosChars)}${"-".repeat(outrosChars)}] ${percRepetidos}%\n` +
+        `Outros:    [${"#".repeat(outrosChars)}${"-".repeat(repetidosChars)}] ${(100-percRepetidos).toFixed(2)}%`;
+
+      // Lugares onde vai apresentar a resposta
+
+      resultado.innerHTML = `
+        <p><b>Sequência Original:</b> ${original.join(", ")}</p>
+        <p><b>Ordenados (crescente):</b> ${ordenadosCrescente.join(", ")}</p> <!-- NOVO -->
+        <p><b>Ordenados (decrescente):</b> ${ordenadosDecrescente.join(", ")}</p>
+        <p><b>Soma Total:</b> ${somaTotal}</p>
+        <p><b>Maior:</b> ${maior} | <b>Menor:</b> ${menor}</p>
+        <p><b>Números Repetidos:</b> ${repetidos.length ? repetidos.map(r=>`${r[0]} (${r[1]}x)`).join(", ") : "Nenhum"}</p>
+        <p><b>Soma dos Repetidos:</b> ${somaRepetidos}</p>
+        <p><b>Porcentagem dos Repetidos:</b> ${percRepetidos}%</p>
+        <h3>Gráfico de Repetições:</h3>
+        <pre>${graficoBarras}</pre>
+        <h3>Gráfico de Porcentagem:</h3>
+        <pre>${graficoPizza}</pre>
+      `;
+    };
+  </script>
+</body>
+</html>  
